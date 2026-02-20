@@ -1,210 +1,189 @@
 # AncientWhiteArmyVet's RPG Tools v2020.1
 
-This project is a **no-build, static, browser-based** toolkit for creating and selecting **Dungeons & Dragons 5e** characters.
+Static, no-build **Dungeons & Dragons 5e** character helper tools (HTML/CSS/JS). Everything runs in the browser; there’s no bundler, no compilation, and no runtime backend required.
 
-GitHub repository: https://github.com/FrankJamison/AncientWhiteArmyVets-RPG-Tools-v2020.1
-
-From an employer/recruiter perspective, this repo demonstrates:
-
-- Building a complete, shippable UI without a framework/build pipeline
-- Clean separation of **data**, **logic**, and **presentation** for a small product
-- Practical DOM programming (dynamic rendering, event handling, file/link generation)
-- Responsive, themed UI design (CSS-driven layout, typography, and a hamburger menu)
-
-**Primary pages**
-
-- Home: [index.html](index.html)
-- Physical Stat Generator: [physical-stats.html](physical-stats.html)
-- Ability Score Generator: [abilities.html](abilities.html)
-- Pre-Generated Characters Browser: [pregen-characters.html](pregen-characters.html)
+- GitHub repository: https://github.com/FrankJamison/AncientWhiteArmyVets-RPG-Tools-v2020.1
+- Primary pages:
+  - Home: [index.html](index.html)
+  - Physical Stat Generator: [physical-stats.html](physical-stats.html)
+  - Ability Score Generator: [abilities.html](abilities.html)
+  - Pre-Generated Characters Browser: [pregen-characters.html](pregen-characters.html)
 
 ---
 
-## Product Overview
+## Developer Quickstart
 
-### What users can do
+### Prerequisites
 
-1. **Generate physical characteristics** (age/height/weight) that are appropriate for a chosen race.
-2. **Roll ability scores** using the classic 4d6-drop-lowest method.
-3. **Browse and download pregenerated characters** by class and level.
+- Any modern browser (Chrome/Edge/Firefox)
+- Git
+- One of the following (recommended) for a local HTTP server:
+  - Python 3, or
+  - Node.js (for `npx serve`)
 
-### Why it’s built this way
+No additional dependencies are required.
 
-This site is intentionally lightweight: **static HTML + CSS + JavaScript**, running entirely in the browser. That keeps deployment simple (any static host works) while still providing a polished, interactive experience.
-
----
-
-## UX & Visual Design
-
-### Navigation / layout
-
-- **Fixed header + fixed footer** keeps navigation and attribution visible.
-- **Hamburger menu** implemented using a checkbox toggle + CSS transitions (no JS required for the menu).
-- Pages share a consistent structure: `header → divider → main → footer`.
-
-### Styling approach
-
-- Global theme via [css/common.css](css/common.css) (typography, colors, buttons, shared layout utilities).
-- Page layout/backgrounds via [css/main.css](css/main.css).
-- Character card UI via [css/characters.css](css/characters.css).
-- Reset layer via [css/reset.css](css/reset.css).
-
-### Responsiveness
-
-- Flexbox layouts collapse to a single column for smaller screens (e.g. ability/stat results panels, auth container).
-- Pre-gen cards wrap naturally and remain readable at different widths.
-
----
-
-## Technical Stack
-
-- **HTML5 + CSS3** (Flexbox, gradients, CSS variables)
-- **Vanilla JavaScript (ES6 class syntax where used)**
-- **jQuery 1.12.4** (bundled) for simple event wiring and DOM updates in the generators
-- **Google Fonts** (`Cinzel` / `Cinzel Decorative`) for the theme
-
-There is **no build step** (no bundler, transpiler, or dependency manager required).
-
----
-
-## Architecture & Code Tour (Developer-Facing)
-
-### Folder structure
-
-- [css/](css/) — modular stylesheets
-- [js/](js/) — feature scripts and “service” modules
-- [images/](images/) — UI images + character portraits
-- [documents/](documents/) — downloadable PDFs by level
-
-### 1) Ability Score Generator
-
-- UI: [abilities.html](abilities.html)
-- Logic: [js/abilityGenerator.js](js/abilityGenerator.js)
-
-**Flow**
-
-1. Button click triggers a roll.
-2. Rolls 6 abilities; each ability is `4d6` with the lowest die dropped.
-3. Renders results in two views:
-   - “Assigned” (STR/DEX/CON/INT/WIS/CHA)
-   - “Ordered” (descending)
-
-**Implementation note**
-
-- The ordered view sorts the same array that was used for the assigned view. This is fine for the current UX, but if you ever need both simultaneously from the same original roll order, you’d clone the array before sorting.
-
-### 2) Physical Stat Generator
-
-- UI: [physical-stats.html](physical-stats.html)
-- Race data model: [js/races.js](js/races.js)
-- Generator logic: [js/physicalCharacteristics.js](js/physicalCharacteristics.js)
-
-**Data model**
-
-- `races.js` defines:
-  - a shared `character` object (current selection + calculated outputs)
-  - one object per race with properties like `AdultAge`, `MaxAge`, `BaseHeight`, and dice modifiers stored as strings (e.g. `"2d8"`).
-
-**Roll mechanics (D&D style)**
-
-- Height = `BaseHeight + rollDice(HeightModifier)`
-- Weight = `BaseWeight + (HeightModRoll × rollDice(WeightModifier))`
-
-**Range calculations**
-
-- Min/max values are computed using minimum and maximum possible dice results from the modifiers.
-
-**Design tradeoff**
-
-- Race selection uses a long `if/else` mapping from UI race label → race data object. It’s explicit and easy to debug, but a strong candidate for refactoring into a lookup table for maintainability.
-
-### 3) Pre-Generated Characters Browser
-
-- UI: [pregen-characters.html](pregen-characters.html)
-- Data provider: [js/characters-api.service.js](js/characters-api.service.js)
-- Renderer + filtering: [js/characters.service.js](js/characters.service.js)
-- Form handler: [js/getCharacterSelection.js](js/getCharacterSelection.js)
-- Boot script: [js/app.js](js/app.js)
-
-**Pattern used**
-
-- A small “service” returns character objects (currently in-memory, but shaped like it could be replaced by an API call).
-- A UI class (`CharacterList`) renders cards by creating DOM nodes rather than concatenating large HTML strings.
-
-**File/link generation**
-
-- Character portraits are loaded from `images/characters/<character_name>.jpg`.
-- PDF links are generated as:
-  - `documents/characters/<level>/<class> <level> [<build>] - <name>.pdf`
-
-This convention makes adding new content simple and keeps the UI code backend-free.
-
----
-
-## Running Locally
-
-### Option A: Open directly
-
-Open [index.html](index.html) in a browser.
-
-### Option B (recommended): Run a local web server
-
-Serving over HTTP avoids file:// restrictions and better matches production hosting.
-
-Python:
+### Clone
 
 ```bash
-python -m http.server 8000
+git clone https://github.com/FrankJamison/AncientWhiteArmyVets-RPG-Tools-v2020.1.git
+cd AncientWhiteArmyVets-RPG-Tools-v2020.1
 ```
 
-Then open `http://localhost:8000/`.
+### Run locally (recommended)
 
-Node (one option):
+Serving over HTTP avoids `file://` restrictions and matches real hosting.
+
+Python (Windows):
+
+```bash
+py -m http.server 8000
+```
+
+Python (macOS/Linux):
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open: `http://localhost:8000/`
+
+Node alternative:
 
 ```bash
 npx serve
 ```
 
-### VS Code task
+### Open directly (works, but not ideal)
 
-This workspace includes a task named **Open in Browser** that opens:
-`http://2020ancientwhitearmyvet.localhost/`
+You can open [index.html](index.html) directly in a browser, but some browsers are stricter about local file access and may behave differently than HTTP hosting.
 
-If you don’t have that local hostname mapped, use the HTTP server approach above.
+### Optional: Apache / XAMPP (Windows)
 
----
+If you prefer XAMPP/Apache:
 
-## Extending the Project
+1. Point Apache’s document root (or a vhost) at this repository folder.
+2. Browse to the site via `http://localhost/<path>/` or your vhost URL.
 
-### Add / update a race
+Notes:
 
-1. Add or update the race object in [js/races.js](js/races.js).
-2. Ensure the UI label in [physical-stats.html](physical-stats.html) matches the race label used in [js/physicalCharacteristics.js](js/physicalCharacteristics.js).
-
-### Add / update a pregenerated character
-
-1. Add a new object in [js/characters-api.service.js](js/characters-api.service.js).
-2. Add the portrait JPG to `images/characters/` using the **exact** `character_name` as the filename.
-3. Add the PDF to `documents/characters/<level>/` following the naming convention described above.
+- Some developers map a custom hostname like `2020ancientwhitearmyvet.localhost` to `127.0.0.1`. That’s optional and environment-specific.
+- VS Code tasks may exist in your local environment (for starting/stopping XAMPP, etc.), but they are not required and are not assumed by this repo.
 
 ---
 
-## Quality Notes (What I’d Improve Next)
+## Repo Layout
 
-This repo is intentionally simple, but there are clear “next steps” that would raise maintainability and polish:
+- [index.html](index.html), [abilities.html](abilities.html), [physical-stats.html](physical-stats.html), [pregen-characters.html](pregen-characters.html) — top-level pages
+- [css/](css/) — modular stylesheets
+- [js/](js/) — feature scripts and simple “service” modules
+- [images/](images/) — UI images + character portraits
+- [documents/](documents/) — downloadable PDFs grouped by level
 
-- Replace the large `if/else` race mapping with a data-driven lookup.
-- Add lightweight linting/formatting (ESLint/Prettier) even without a build.
-- Improve accessibility (e.g., consistent `alt` text, focus states, ARIA labeling for the hamburger menu).
-- Remove debug `console.log` statements in the character list renderer.
+---
+
+## How It Works (Code Tour)
+
+### Ability Score Generator
+
+- UI: [abilities.html](abilities.html)
+- Logic: [js/abilityGenerator.js](js/abilityGenerator.js)
+
+Flow:
+
+1. A button click triggers a roll.
+2. Rolls 6 abilities; each ability is `4d6` drop-lowest.
+3. Renders results as:
+   - “Assigned” (STR/DEX/CON/INT/WIS/CHA)
+   - “Ordered” (sorted high → low)
+
+Implementation note: the ordered view sorts the same array used for the assigned view. If you ever need both views from the same unsorted roll state, clone the array before sorting.
+
+### Physical Stat Generator
+
+- UI: [physical-stats.html](physical-stats.html)
+- Race data model: [js/races.js](js/races.js)
+- Generator logic: [js/physicalCharacteristics.js](js/physicalCharacteristics.js)
+
+The race data includes numeric bases plus dice modifiers stored as strings like `"2d8"`.
+
+D&D-style mechanics:
+
+- Height = `BaseHeight + rollDice(HeightModifier)`
+- Weight = `BaseWeight + (HeightModRoll × rollDice(WeightModifier))`
+
+Developer note: race selection currently uses an explicit `if/else` mapping from UI label → race object. It’s easy to debug but is a candidate for a lookup-table refactor if you expand the race list further.
+
+### Pre-Generated Characters Browser
+
+- UI: [pregen-characters.html](pregen-characters.html)
+- “API”/data source (in-memory): [js/characters-api.service.js](js/characters-api.service.js)
+- Renderer: [js/characters.service.js](js/characters.service.js)
+- Bootstrapping: [js/app.js](js/app.js)
+
+The character list is rendered by creating DOM nodes (not templated strings). Character assets are derived from character properties (see conventions below).
+
+---
+
+## Content & Data Conventions
+
+This project is “backend-free”, so filenames matter.
+
+### Adding/updating a race
+
+1. Add/update the race object in [js/races.js](js/races.js).
+2. Ensure the UI label in [physical-stats.html](physical-stats.html) matches the value expected by [js/physicalCharacteristics.js](js/physicalCharacteristics.js).
+3. Manually test a few generations and verify min/max ranges look sane.
+
+### Adding/updating a pregenerated character
+
+1. Add a new object to the `characters` array in [js/characters-api.service.js](js/characters-api.service.js).
+2. Add portrait image:
+   - Path: `images/characters/<character_name>.jpg`
+   - `<character_name>` must exactly match `character.character_name` (including spaces/punctuation).
+3. Add PDF:
+   - Path: `documents/characters/<level>/`
+   - Filename pattern used by the UI:
+     - `<class> <level> [<build>] - <name>.pdf`
+
+Where that pattern comes from:
+
+- The download link is assembled in [js/characters.service.js](js/characters.service.js) using the selected class/level and the character’s build/name.
+
+Tip: if you rename an image or PDF, update the corresponding character fields so the generated paths still match.
+
+---
+
+## Contributing / Development Workflow
+
+### Branching
+
+```bash
+git checkout main
+git pull
+git checkout -b your-name/short-description
+```
+
+### What to validate before a PR
+
+- Load `http://localhost:8000/` and click through each primary page
+- Verify console is clean (or document any known logs)
+- Confirm newly added character images and PDFs resolve correctly
+
+### Style & conventions
+
+- Keep changes small and localized (this is a static site).
+- Prefer consistent naming with existing code.
+- Avoid introducing new tooling unless it provides clear value (no-build is a core constraint).
 
 ---
 
 ## Troubleshooting
 
-- Buttons not responding: check the DevTools Console for JavaScript errors and verify scripts are loading.
-- Missing character images: confirm `images/characters/<character_name>.jpg` exists (punctuation/case must match).
-- Broken PDF links: confirm the PDF filename matches the generated pattern.
+- Buttons not responding: open DevTools Console and verify scripts are loading (404s often indicate wrong relative paths due to server root).
+- Missing character images: confirm `images/characters/<character_name>.jpg` exists and matches punctuation/case.
+- Broken PDF links: confirm the PDF path and filename match the generated pattern.
+- Weird behavior on `file://`: run a local HTTP server instead.
 
 ---
 
