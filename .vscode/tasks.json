@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install & Dev (npm)",
+            "type": "shell",
+            "command": "npm install && npm run dev",
+            "detail": "Installs dependencies then starts the dev server (nodemon)",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Open in Browser",
+            "type": "shell",
+            "command": "start",
+            "args": [
+                "",
+                "http://ancientwhitearmyvetsrpgtoolsv20202.localhost:4001/"
+            ],
+            "detail": "Opens the local site in your default browser",
+            "presentation": {
+                "reveal": "never",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

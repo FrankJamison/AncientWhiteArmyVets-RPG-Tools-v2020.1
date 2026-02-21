@@ -1,36 +1,41 @@
-# AncientWhiteArmyVet's RPG Tools v2020.1
+# AncientWhiteArmyVets RPG Tools (v2020.2)
 
-Static, no-build **Dungeons & Dragons 5e** character helper tools (HTML/CSS/JS). Everything runs in the browser; there’s no bundler, no compilation, and no runtime backend required.
+Static, no-build **Dungeons & Dragons 5e** character helper tools (HTML/CSS/JS).
 
-- GitHub repository: https://github.com/FrankJamison/AncientWhiteArmyVets-RPG-Tools-v2020.1
-- Primary pages:
-  - Home: [index.html](index.html)
-  - Physical Stat Generator: [physical-stats.html](physical-stats.html)
-  - Ability Score Generator: [abilities.html](abilities.html)
-  - Pre-Generated Characters Browser: [pregen-characters.html](pregen-characters.html)
+This repo can be used in two ways:
 
----
+1. **Static UI only**: open/serve the HTML pages and everything runs in the browser.
+2. **Full app (UI + API)**: run the included Node/Express server which serves the UI and exposes `/api/*` endpoints backed by MySQL.
 
-## Developer Quickstart
+## What this repo contains
 
-### Prerequisites
+- **Static web UI**: `Application/public/*`
+  - Primary pages: `index.html`, `physical-stats.html`, `abilities.html`, `pregen-characters.html`
+  - API base URL is same-origin: `window.location.origin + '/api'` (see `Application/public/lib/api.config.js`)
+- **Node/Express server**: `Web-Server/src/index.js`
+  - Serves the UI from `Application/public`
+  - Serves the API under `/api/*`
+- **Root entrypoint**: `index.js`
+  - Delegates to `Web-Server/src/index.js` (useful for hosts that expect a root `index.js`)
+
+## Prerequisites
+
+### Static UI only
 
 - Any modern browser (Chrome/Edge/Firefox)
-- Git
-- One of the following (recommended) for a local HTTP server:
+- Optional but recommended: a local HTTP server to avoid `file://` restrictions
   - Python 3, or
   - Node.js (for `npx serve`)
 
-No additional dependencies are required.
+### Full app (UI + API)
 
-### Clone
+- Node.js **18+** (see `package.json` `engines.node`)
+- npm (bundled with Node)
+- MySQL 5.7/8.x (local install or XAMPP/MariaDB often works)
 
-```bash
-git clone https://github.com/FrankJamison/AncientWhiteArmyVets-RPG-Tools-v2020.1.git
-cd AncientWhiteArmyVets-RPG-Tools-v2020.1
-```
+## Quick start
 
-### Run locally (recommended)
+### Option A: run the static UI only
 
 Serving over HTTP avoids `file://` restrictions and matches real hosting.
 
@@ -54,138 +59,219 @@ Node alternative:
 npx serve
 ```
 
-### Open directly (works, but not ideal)
+Tip: if you want to serve the UI folder directly, run the server from `Application/public`.
 
-You can open [index.html](index.html) directly in a browser, but some browsers are stricter about local file access and may behave differently than HTTP hosting.
+### Option B: run the full app (recommended for API features)
 
-### Optional: Apache / XAMPP (Windows)
+1. Install dependencies:
 
-If you prefer XAMPP/Apache:
+   ```bash
+   npm install
+   ```
 
-1. Point Apache’s document root (or a vhost) at this repository folder.
-2. Browse to the site via `http://localhost/<path>/` or your vhost URL.
+2. Create your server env file:
+   - Copy `Web-Server/.env.example` to `Web-Server/.env`
+   - Update DB and JWT values as needed
 
-Notes:
+3. Start the dev server (nodemon):
 
-- Some developers map a custom hostname like `2020ancientwhitearmyvet.localhost` to `127.0.0.1`. That’s optional and environment-specific.
-- VS Code tasks may exist in your local environment (for starting/stopping XAMPP, etc.), but they are not required and are not assumed by this repo.
+   ```bash
+   npm run dev
+   ```
 
----
+4. Open the app in your browser:
+   - `http://localhost:4001/` (default)
+   - or `http://ancientwhitearmyvetsrpgtoolsv20202.localhost:4001/` (example dev URL)
 
-## Repo Layout
+## VS Code tasks
 
-- [index.html](index.html), [abilities.html](abilities.html), [physical-stats.html](physical-stats.html), [pregen-characters.html](pregen-characters.html) — top-level pages
-- [css/](css/) — modular stylesheets
-- [js/](js/) — feature scripts and simple “service” modules
-- [images/](images/) — UI images + character portraits
-- [documents/](documents/) — downloadable PDFs grouped by level
+If you’re using VS Code, this repo includes tasks in `.vscode/tasks.json`:
 
----
+- **Install & Dev (npm)**: runs `npm install` then `npm run dev`
+- **Open in Browser**: opens `http://ancientwhitearmyvetsrpgtoolsv20202.localhost:4001/`
 
-## How It Works (Code Tour)
+Run them via **Terminal → Run Task…**.
 
-### Ability Score Generator
+## Configuration
 
-- UI: [abilities.html](abilities.html)
-- Logic: [js/abilityGenerator.js](js/abilityGenerator.js)
+### Server port
 
-Flow:
+The server listens on:
 
-1. A button click triggers a roll.
-2. Rolls 6 abilities; each ability is `4d6` drop-lowest.
-3. Renders results as:
-   - “Assigned” (STR/DEX/CON/INT/WIS/CHA)
-   - “Ordered” (sorted high → low)
+- `PORT` environment variable, otherwise **4001**.
 
-Implementation note: the ordered view sorts the same array used for the assigned view. If you ever need both views from the same unsorted roll state, clone the array before sorting.
+Note: `Web-Server/.env.example` currently shows `PORT=3001`, but the server default is `4001`.
 
-### Physical Stat Generator
+### Environment variables
 
-- UI: [physical-stats.html](physical-stats.html)
-- Race data model: [js/races.js](js/races.js)
-- Generator logic: [js/physicalCharacteristics.js](js/physicalCharacteristics.js)
+The server loads `Web-Server/.env` (see `Web-Server/src/index.js`). Common variables:
 
-The race data includes numeric bases plus dice modifiers stored as strings like `"2d8"`.
+- `PORT` – HTTP port for the Express app
+- `LOG_LEVEL` – morgan log preset (e.g. `dev`)
+- `NODE_ENV` – `development`, `test`, `production`
 
-D&D-style mechanics:
+Database (defaults are chosen to work with many local MySQL/XAMPP setups):
 
-- Height = `BaseHeight + rollDice(HeightModifier)`
-- Weight = `BaseWeight + (HeightModRoll × rollDice(WeightModifier))`
+- `DB_HOST` (default: `127.0.0.1`)
+- `DB_PORT` (default: `3306`)
+- `DB_USER` / `DB_USERNAME` (default: `root`)
+- `DB_PASS` / `DB_PASSWORD` (default: empty)
+- `DB_DATABASE` / `DB_NAME` (default: `ancientwhitearmyvet`)
 
-Developer note: race selection currently uses an explicit `if/else` mapping from UI label → race object. It’s easy to debug but is a candidate for a lookup-table refactor if you expand the race list further.
+JWT secrets:
 
-### Pre-Generated Characters Browser
+- `JWT_ACCESS_SECRET` (or `JWT_SECRET`)
+- `JWT_REFRESH_SECRET`
 
-- UI: [pregen-characters.html](pregen-characters.html)
-- “API”/data source (in-memory): [js/characters-api.service.js](js/characters-api.service.js)
-- Renderer: [js/characters.service.js](js/characters.service.js)
-- Bootstrapping: [js/app.js](js/app.js)
+## Database behavior
 
-The character list is rendered by creating DOM nodes (not templated strings). Character assets are derived from character properties (see conventions below).
+On startup, `Web-Server/src/db-config.js`:
 
----
+- Creates the database (if missing): `CREATE DATABASE IF NOT EXISTS <DB_DATABASE>`
+- Creates tables:
+  - `users`
+  - `characters`
 
-## Content & Data Conventions
+### Tasks table
 
-This project is “backend-free”, so filenames matter.
+The Tasks API expects a `tasks` table, but it is **not currently auto-created** during DB init.
 
-### Adding/updating a race
+You can create it manually using the schema in `Web-Server/src/queries/tasks.queries.js`:
 
-1. Add/update the race object in [js/races.js](js/races.js).
-2. Ensure the UI label in [physical-stats.html](physical-stats.html) matches the value expected by [js/physicalCharacteristics.js](js/physicalCharacteristics.js).
-3. Manually test a few generations and verify min/max ranges look sane.
-
-### Adding/updating a pregenerated character
-
-1. Add a new object to the `characters` array in [js/characters-api.service.js](js/characters-api.service.js).
-2. Add portrait image:
-   - Path: `images/characters/<character_name>.jpg`
-   - `<character_name>` must exactly match `character.character_name` (including spaces/punctuation).
-3. Add PDF:
-   - Path: `documents/characters/<level>/`
-   - Filename pattern used by the UI:
-     - `<class> <level> [<build>] - <name>.pdf`
-
-Where that pattern comes from:
-
-- The download link is assembled in [js/characters.service.js](js/characters.service.js) using the selected class/level and the character’s build/name.
-
-Tip: if you rename an image or PDF, update the corresponding character fields so the generated paths still match.
-
----
-
-## Contributing / Development Workflow
-
-### Branching
-
-```bash
-git checkout main
-git pull
-git checkout -b your-name/short-description
+```sql
+CREATE TABLE IF NOT EXISTS tasks(
+  task_id int NOT NULL AUTO_INCREMENT,
+  user_id int NOT NULL,
+  task_name varchar(255) NOT NULL,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  status varchar(10) DEFAULT 'pending',
+  PRIMARY KEY (task_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
 ```
 
-### What to validate before a PR
+## API overview
 
-- Load `http://localhost:8000/` and click through each primary page
-- Verify console is clean (or document any known logs)
-- Confirm newly added character images and PDFs resolve correctly
+All API routes are served from the same origin as the UI.
 
-### Style & conventions
+### Auth (`/api/auth`)
 
-- Keep changes small and localized (this is a static site).
-- Prefer consistent naming with existing code.
-- Avoid introducing new tooling unless it provides clear value (no-build is a core constraint).
+- `POST /api/auth/register`
+  - body: `{ "username": "...", "email": "...", "password": "..." }`
+- `POST /api/auth/login`
+  - body: `{ "username": "...", "password": "..." }`
+  - returns: `access_token` and `refresh_token`
+- `POST /api/auth/token`
+  - body: `{ "token": "<refresh_token>" }`
+- `POST /api/auth/logout`
+  - body: `{ "token": "<refresh_token>" }`
 
----
+### Authenticated requests
+
+Protected endpoints use `Web-Server/src/middleware/auth.middleware.js`.
+
+Send your access token as:
+
+- `Authorization: Bearer <access_token>`
+
+### User (`/api/user`)
+
+- `GET /api/user/me`
+- `PUT /api/user/me/update`
+
+### Tasks (`/api/tasks`)
+
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `GET /api/tasks/:taskId`
+- `PUT /api/tasks/:taskId`
+- `DELETE /api/tasks/:taskId`
+
+### Characters (`/api/characters`)
+
+- `GET /api/characters`
+- `POST /api/characters`
+- `GET /api/characters/:characterId`
+- `PUT /api/characters/:characterId`
+- `DELETE /api/characters/:characterId`
+
+## Running tests
+
+`npm test` runs Mocha tests under `Web-Server/tests/*`.
+
+Some tests are **integration/opt-in** and require env vars:
+
+- `RUN_INTEGRATION=1` – enables integration tests
+- `API_BASE_URL` – e.g. `http://localhost:4001`
+- `TEST_ACCESS_TOKEN` – access token string (with or without the `Bearer ` prefix)
+
+### Example (PowerShell)
+
+```powershell
+$env:RUN_INTEGRATION = "1"
+$env:API_BASE_URL = "http://localhost:4001"
+$env:TEST_ACCESS_TOKEN = "Bearer <paste-access-token>"
+
+npm test
+```
+
+### Example (cmd.exe)
+
+```bat
+set RUN_INTEGRATION=1
+set API_BASE_URL=http://localhost:4001
+set TEST_ACCESS_TOKEN=Bearer <paste-access-token>
+
+npm test
+```
+
+## Production notes
+
+This app is designed to serve **UI + API from the same Express process** (static files + `/api/*`). That makes production deployment straightforward: put the Node process behind a reverse proxy (recommended) and expose a single origin.
+
+### Environment + secrets
+
+- Prefer setting environment variables in your hosting platform (or systemd service) instead of relying on a checked-in `.env` file.
+- Set **strong, unique** JWT secrets in production:
+  - `JWT_ACCESS_SECRET` (or `JWT_SECRET`)
+  - `JWT_REFRESH_SECRET`
+
+Important behavior note: refresh tokens are stored **in-memory** (`refreshTokens` array in `Web-Server/src/utils/jwt-helpers.js`). If you restart the process (or run multiple instances), previously issued refresh tokens will no longer be recognized.
+
+### Ports, binding, and reverse proxy
+
+- The server listens on `PORT` (default `4001`). In production, it’s common to run Node on an internal port and have Nginx/Apache/Caddy terminate TLS on `443` and proxy to Node.
+- You can control which interface the server binds to with:
+  - `HOST` or `BIND_HOST`
+
+Typical setups:
+
+- **Behind a reverse proxy on the same machine**: set `HOST=127.0.0.1` so Node is not directly exposed.
+- **Container / VM with direct exposure**: set `HOST=0.0.0.0` so the process listens on all interfaces.
+
+### Database in production
+
+- Ensure MySQL credentials are provided via env vars (`DB_HOST`, `DB_USER`, `DB_PASS`, etc.).
+- On startup, the app will attempt to create the database (if missing) and create the `users` + `characters` tables.
+- The `tasks` table is **not auto-created** during startup; create it ahead of time if you use the Tasks feature.
+
+### Logging
+
+- HTTP request logging uses `morgan` and `LOG_LEVEL` (default `dev`).
+- Ensure your production host captures stdout/stderr (Docker logs, systemd journal, PaaS logs, etc.).
+
+### Process management
+
+- In production, use a process manager or supervisor (systemd, PM2, Docker, your PaaS) so the server restarts on crashes and runs on boot.
+- Use `npm run start` for production (not `npm run dev`).
 
 ## Troubleshooting
 
-- Buttons not responding: open DevTools Console and verify scripts are loading (404s often indicate wrong relative paths due to server root).
-- Missing character images: confirm `images/characters/<character_name>.jpg` exists and matches punctuation/case.
-- Broken PDF links: confirm the PDF path and filename match the generated pattern.
-- Weird behavior on `file://`: run a local HTTP server instead.
-
----
+- **Browser shows “Index of /”**: you’re likely hitting the wrong port. Default is **4001**.
+- **401 Access Denied**: ensure `Authorization: Bearer <access_token>` is sent.
+- **DB init failed**: verify MySQL is running and `Web-Server/.env` matches your local credentials.
 
 ## Credits / License
 

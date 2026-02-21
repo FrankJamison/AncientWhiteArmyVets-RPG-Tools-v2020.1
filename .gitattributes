@@ -1,0 +1,11 @@
+# Normalize line endings across platforms.
+# Force LF in the working tree for text files to avoid CRLF-only diffs on Windows.
+* text=auto eol=lf
+
+# Treat common binary formats as binary to prevent line-ending normalization.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary

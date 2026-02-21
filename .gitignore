@@ -8,3 +8,7 @@ Desktop.ini
 
 # Logs
 *.log
+
+# Local environment files (never commit secrets)
+.env
+Web-Server/.env
